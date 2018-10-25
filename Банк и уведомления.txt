@@ -1,0 +1,106 @@
+
+
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
+using System.Collections;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
+using System.Text;
+using System;
+
+namespace HelloWorld
+{
+  class Solution 
+  {
+//В Национальном банке HackerLand существует простая политика для предупреждения клиентов о возможной мошеннической работе с учетной записью. 
+//Если сумма, потраченная клиентом в определенный день, больше или равна 2*средние расходы клиента за конечное количество дней,
+//они отправляют клиенту уведомление о возможном мошенничестве.
+//Банк не отправляет клиенту никаких уведомлений до тех пор, пока они не будут иметь, определенное количество транзакций за предыдущие дни.
+//Учитывая количество дней ожидания и общие ежедневные расходы клиента за период, сколько уведомлений получит клиент в течение всех n дней.
+//(используется расчет медианы)
+  //
+    static int activityNotifications(int[] expenditure, int d) {
+        int sum = 0;
+        int a = 0;
+        int m = 0;
+        int[] srez = new int[201];
+        for (int j = a; j<d; j++)         //заполним первый отрезок ожидания
+          {
+              srez[expenditure[j]]++; 
+          }  
+
+        for (int i = d; i<expenditure.Length; i++)           //сколько дат проверять
+        {
+            m=0;
+            //Array.Copy( expenditure,a, srez,0,d); // так не пойдет
+            // Array.Sort(srez); 
+       
+            if (d % 2 == 0) 
+           {
+               int s = 0;
+                for (int j = 0; j<srez.Length; j++) 
+                {
+                    
+                  if (srez[j] > 0) s = s+srez[j];
+                   
+                    if (s == d/2) m = j;        //отдельное число
+                    
+                    if (s >= d/2+1) 
+                        {
+                            if (m ==0) {m = j*2;}        
+                            else {m = m+j;}
+                            
+                          break;   
+                        }    
+                    
+                 }
+                if (m<=expenditure[i]) sum++;
+            }
+            else
+            {
+                for (int j = 0; j<srez.Length; j++) 
+                 {
+                     
+                    if (srez[j] > 0) m = m+srez[j];
+                    if (m >= d/2+1) {m = j; break;} 
+
+                 }
+                if (m*2<=expenditure[i]) sum++;
+            }
+            
+            srez[expenditure[i-d]]--;
+            srez[expenditure[i]]++; 
+                    
+
+        }
+
+        return sum;
+    }
+
+    static void Main(string[] args) {
+
+        string[] nd = Console.ReadLine().Split(' ');
+
+        int n = Convert.ToInt32(nd[0]);
+
+        int d = Convert.ToInt32(nd[1]);
+
+        int[] expenditure = Array.ConvertAll(Console.ReadLine().Split(' '), expenditureTemp => Convert.ToInt32(expenditureTemp))
+        ;
+        int result = activityNotifications(expenditure, d);
+
+        Console.WriteLine(result);
+
+        
+    }
+}
+
+}
+
+
