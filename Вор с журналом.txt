@@ -1,0 +1,70 @@
+
+
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
+using System.Collections;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
+using System.Text;
+using System;
+
+namespace HelloWorld
+{
+   class Solution
+    {
+
+    // вор что то украл и хочет написать письмо хозяину квартиры словами из журнала, чтобы никто не раскрыл его по почерку 
+    //вырезать можно только целые слова, чувствительность к регистру
+        static void checkMagazine(string[] magazine, string[] note)
+         {
+            int k = 0;
+            string v = "No";
+             Array.Sort(magazine);
+             Array.Sort(note);
+                if (magazine.Length >= note.Length) //магаз всегда должен быть длиннее 
+                 {
+                     for (int i = 0; i < note.Length; i++)  //переберем слова письма
+                     {
+                         if  (Array.IndexOf(magazine, note[i], k,magazine.Length-k) >= 0) //ищем в магазине слово письма, диапазон от k до длины магазина -k
+                        
+                             {
+                            k = Array.IndexOf(magazine, note[i], k,magazine.Length-k)+1; //если нашли то присваиваем k индекс элемента, с которого будем искать в магазине в следующий раз
+                            if (i == note.Length-1) v = "Yes";
+                             }
+                        else   break; //если нет такого символа, то письмо мы не напишем =(
+                         
+                        }
+                }
+           if (note.Length == 0) v = "Yes"; 
+            Console.WriteLine(v);
+        }
+
+        static void Main(string[] args)
+        {
+            string[] mn = Console.ReadLine().Split(' ');  //размеры магазина и письма
+
+            int m = Convert.ToInt32(mn[0]); 
+
+            int n = Convert.ToInt32(mn[1]); 
+
+            string[] magazine = Console.ReadLine().Split(' ');
+
+             string[] note = Console.ReadLine().Split(' ');
+
+            checkMagazine(magazine, note);
+        }
+
+
+
+
+
+}
+}
+
+
