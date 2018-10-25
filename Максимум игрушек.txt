@@ -1,0 +1,61 @@
+
+
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
+using System.Collections;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
+using System.Text;
+using System;
+
+namespace HelloWorld
+{
+  class Solution {
+
+    // Complete the maximumToys function below. Поможем мальчику купить максимальное количество игрушек на его денежку )
+    static int maximumToys(int[] prices, int k) {   
+        int i=0;
+        Array.Sort(prices);
+        int sum = prices[0];
+
+        if (prices[0]<=k)
+        {
+        
+            for ( i = 1; i< prices.Length; i++)
+                 {
+                   sum = sum+prices[i];
+                   if (sum > k) {break;}
+                    
+
+                }
+        }
+        return i;
+    }
+
+    static void Main(string[] args) {
+       
+        string[] nk = Console.ReadLine().Split(' ');
+
+        int n = Convert.ToInt32(nk[0]);
+
+        int k = Convert.ToInt32(nk[1]);
+
+        int[] prices = Array.ConvertAll(Console.ReadLine().Split(' '), pricesTemp => Convert.ToInt32(pricesTemp))
+        ;
+        int result = maximumToys(prices, k);
+
+       Console.WriteLine(result);
+
+        
+    }
+}
+
+}
+
+

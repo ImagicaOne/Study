@@ -1,0 +1,85 @@
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
+using System.Collections;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
+using System.Text;
+using System;
+
+class Solution
+{
+    static void Swap(ref int lhs, ref int rhs)
+    {
+        int temp;
+        temp = lhs;
+        lhs = rhs;
+        rhs = temp;
+    }
+
+    static void Swap3(ref int lhs, ref int mhs, ref int rhs)
+    {
+        int temp1, temp2;
+        temp1 = mhs;
+        temp2 = lhs;
+        lhs = rhs;
+        rhs = temp1;
+        mhs = temp2;
+    }
+    // Это новогодний день, и все в очереди на поездку на американских горках Wonderland!
+     //Есть несколько человек, стоящих в очереди, и каждый человек носит наклейку с указанием их начальной позиции в очереди.
+     //Любой человек в очереди может подкупить человека прямо перед собой, чтобы поменять местами. 
+     //Если два человека заменяют позиции, они все еще носят ту же самую наклейку, обозначающую их исходные места в очереди. 
+     //Один человек может подкупить не более двух других.
+     //Увлеченный этой хаотичной очередью... вы решаете, что вы должны знать минимальное количество взяток, 
+     //которые имели место, чтобы получить очередь в текущем состоянии!
+    static void minimumBribes(int[] q)
+    {
+        int sum = 0;
+        int[] temp = new int[3];
+        for (int i = q.Length - 1; i >= 0; i--)
+        {
+            if (i > 1)
+            { temp[0] = q[i - 2]; temp[1] = q[i - 1]; temp[2] = q[i]; }
+            else if (i == 1) { temp[0] = 0; temp[1] = q[i - 1]; temp[2] = q[i]; }
+            else if (i == 0) { temp[0] = 0; temp[1] = 0;  temp[2] = q[i]; }
+
+            if (Array.IndexOf(temp, i + 1) == 1)//не на следующем
+            {
+                Swap(ref q[i], ref q[i - 1]); sum++;
+            }
+            else if (Array.IndexOf(temp, i + 1) == 0) //но и не через 2
+            {
+
+                Swap3(ref q[i], ref q[i - 1], ref q[i - 2]); sum += 2;
+
+            }
+            else if (Array.IndexOf(temp, i + 1) == 2) { }
+            else
+            { sum = 0; break; }
+
+
+        }
+
+       Console.WriteLine((sum == 0) ? "Too chaotic" : Convert.ToString(sum));
+    }
+
+    static void Main(string[] args)
+    {
+        int t = Convert.ToInt32(Console.ReadLine());
+
+        for (int tItr = 0; tItr < t; tItr++)
+        {
+            int n = Convert.ToInt32(Console.ReadLine());
+
+            int[] q = Array.ConvertAll(Console.ReadLine().Split(' '), qTemp => Convert.ToInt32(qTemp))
+            ;
+            minimumBribes(q);
+        }
+    }
+}
