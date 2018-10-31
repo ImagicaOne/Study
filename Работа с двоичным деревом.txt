@@ -1,0 +1,328 @@
+﻿using System;
+using System.CodeDom.Compiler;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Text.RegularExpressions;
+
+namespace HelloWorld {
+  public enum BinSide
+{    
+        Left,
+        Right
+}
+class Program {
+static void Main() 
+{
+
+Console.ReadKey();
+var tree = new BinaryTree();
+tree.Insert(20);
+tree.Insert(40);
+tree.Insert(10);
+tree.Insert(30);
+tree.Insert(80);
+tree.Insert(29);
+tree.Insert(31);
+tree.Insert(32);
+tree.Insert(70);
+BinaryTreeExtensions.Print(tree);
+tree.Remove(40);
+BinaryTreeExtensions.Print(tree);
+tree.Remove(20);
+BinaryTreeExtensions.Print(tree);
+
+}
+}
+
+
+
+/// Бинарное дерево поиска
+
+public class BinaryTree
+{
+ 
+    public long? Data { get; private set; }
+    public BinaryTree Left { get; set; }
+    public BinaryTree Right { get; set; }
+    public BinaryTree Parent { get; set; }
+ 
+    
+    /// Вставляет целочисленное значение в дерево
+    /// data Значение, которое добавится в дерево
+    public void Insert(long data) //процедура сравнения с корнем
+    {
+        if (Data == null || Data == data) //если еще нет элементов или значение равно значению корня
+        {
+            Data = data;    //присваиваем  корню значение
+            return;
+        }
+        if (Data > data) //если  корень больше добавляемого значения
+        {
+            if (Left == null) Left = new BinaryTree(); //если слева пусто то создаем  новый
+            Insert(data, Left, this); //в любом случае отправляем всё это в другой Инсерт для добавления
+        }
+        else
+        {
+            if (Right == null) Right = new BinaryTree();//если справа пусто то создаем  новый
+            Insert(data, Right, this);//в любом случае отправляем всё это в другой Инсерт для добавления
+        }
+    }
+ 
+   
+    /// Вставляет значение в определённый узел дерева
+    /// data Значение
+    /// node Целевой узел для вставки
+    /// Родительский узел
+    private void Insert(long data, BinaryTree node, BinaryTree parent)//процедура сравнения с ветвями
+    {
+ 
+        if (node.Data == null || node.Data == data) //если это новый пустой еще элемент - присваиваем ему значение и родителя
+        {
+            node.Data = data;
+            node.Parent = parent;
+            return;
+        }
+        if (node.Data > data)
+        {
+            if (node.Left == null) node.Left = new BinaryTree();//если слева пусто то создаем  новый
+            Insert(data, node.Left, node);
+        }
+        else
+        {
+            if (node.Right == null) node.Right = new BinaryTree();//если справа пусто то создаем  новый
+            Insert(data, node.Right, node);
+        }
+    }
+   
+    /// Уставляет узел в определённый узел дерева (после удаления)
+   
+    /// data Вставляемый узел
+    /// node Целевой узел
+    /// parent Родительский узел
+    private void Insert(BinaryTree data, BinaryTree node, BinaryTree parent) //мы изменили родителя и теперь поправляем детей
+    {
+ 
+        if (node.Data == null || node.Data == data.Data)
+        {
+            node.Data = data.Data;
+            node.Left = data.Left;
+            node.Right = data.Right;
+            node.Parent = parent;
+            return;
+        }
+        if (node.Data > data.Data) //если куда вставляем больше вставляемого
+        {
+            if (node.Left == null) node.Left = new BinaryTree();
+            Insert(data, node.Left, node);
+        }
+        else
+        {
+            if (node.Right == null) node.Right = new BinaryTree();
+            Insert(data, node.Right, node);
+        }
+    }
+   
+    /// Определяет, в какой ветви для родительского лежит данный узел
+   
+    private BinSide? MeForParent(BinaryTree node)
+    {
+        if (node.Parent == null) return null; //если удаляем корень
+        if (node.Parent.Left == node) return BinSide.Left;
+        if (node.Parent.Right == node) return BinSide.Right;
+        return null;
+    }
+ 
+    
+    /// Удаляет узел из дерева
+    
+    /// node">Удаляемый узел
+    public void Remove(BinaryTree node)//само удаление с перестановками
+    {
+        if(node == null) return;
+        var me = MeForParent(node);
+        //Если у узла нет дочерних элементов, его можно смело удалять
+        if (node.Left == null && node.Right == null)
+        {
+            if (me == BinSide.Left)
+            {
+                node.Parent.Left = null;
+            }
+            else
+            {
+                node.Parent.Right = null;
+            }
+            return;
+        }
+        //Если нет левого дочернего, то правый дочерний становится на место удаляемого
+        if (node.Left == null)
+        {
+            if (me == BinSide.Left)
+            {
+                node.Parent.Left = node.Right;
+            }
+            else
+            {
+                node.Parent.Right = node.Right;
+            }
+ 
+            node.Right.Parent = node.Parent;
+            return;
+        }
+        //Если нет правого дочернего, то левый дочерний становится на место удаляемого
+        if (node.Right == null)
+        {
+            if (me == BinSide.Left)
+            {
+                node.Parent.Left = node.Left;
+            }
+            else
+            {
+                node.Parent.Right = node.Left;
+            }
+ 
+            node.Left.Parent = node.Parent;
+            return;
+        }
+ 
+        //Если присутствуют оба дочерних узла
+        //то правый ставим на место удаляемого
+        //а левый вставляем в правый
+ 
+        if (me == BinSide.Left)
+        {
+            node.Parent.Left = node.Right;
+        }
+        if (me == BinSide.Right)
+        {
+            node.Parent.Right = node.Right;
+        }
+        if (me == null)//если удаляем корень
+        {
+            var bufLeft = node.Left;
+            var bufRightLeft = node.Right.Left;
+            var bufRightRight = node.Right.Right;
+            node.Data = node.Right.Data;
+            node.Right = bufRightRight;
+            node.Left = bufRightLeft;
+            Insert(bufLeft, node, node);
+        }
+        else
+        {
+            node.Right.Parent = node.Parent;
+            Insert(node.Left, node.Right, node.Right);
+        }
+    }
+    
+    /// Удаляет значение из дерева
+    
+    /// data">Удаляемое значение
+    public void Remove(long data) //первая процедура для удаления, просто передаем ей значение элемента
+    {
+        var removeNode = Find(data);
+        if (removeNode != null)
+        {
+            Remove(removeNode);
+        }
+    }
+    
+    /// Ищет узел с заданным значением
+    
+    /// data">Значение для поиска
+   
+    public BinaryTree Find(long data) //ищем 
+    {
+        if (Data == data) return this; //если это корень, возвращаем его
+        if (Data > data) //если корень больше искомого, проверяем левую ветвь
+        {
+            return Find(data, Left); 
+        }
+        return Find(data, Right); 
+    }
+    
+    /// Ищет значение в определённом узле
+    
+    /// data">Значение для поиска
+    /// node">Узел для поиска
+  
+    public BinaryTree Find(long data, BinaryTree node) //поиск под родителем
+    {
+        if (node == null) return null;
+ 
+        if (node.Data == data) return node;//если родитель это и есть искомый
+        if (node.Data > data)
+        {
+            return Find(data, node.Left);
+        }
+        return Find(data, node.Right);
+    }
+ 
+    
+    /// Количество элементов в дереве
+    
+  
+    public long CountElements()
+    {
+        return CountElements(this);
+    }
+    
+    /// Количество элементов в определённом узле
+    
+    /// node">Узел для подсчета
+  
+    private long CountElements(BinaryTree node)
+    {
+        long count = 1;
+        if (node.Right != null)
+        {
+            count += CountElements( node.Right);
+        }
+        if (node.Left != null)
+        {
+            count+=CountElements( node.Left);
+        }
+        return count;
+    }
+}
+ 
+public class BinaryTreeExtensions  //вывод на экран в текстовом виде
+{
+    public static void Print(BinaryTree node)
+    {
+        if (node != null)
+        {
+            if (node.Parent == null) //если корень
+            {
+                Console.WriteLine("ROOT:{0}", node.Data);
+            }
+            else
+            {
+                if (node.Parent.Left == node)//если это левый от родителя элемент
+                {
+                    Console.WriteLine("Left for {1}  --> {0}", node.Data, node.Parent.Data);
+                }
+ 
+                if (node.Parent.Right == node)//если правый от родителя
+                {
+                    Console.WriteLine("Right for {1} --> {0}", node.Data, node.Parent.Data);
+                }
+            }
+            if (node.Left != null) //если есть еще левее
+            {
+                Print(node.Left);
+            }
+            if (node.Right != null)//если есть еще правее
+            {
+                Print(node.Right);
+            }
+        }
+    }
+}
+}
